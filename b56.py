@@ -1,6 +1,5 @@
 #!/usr/bin/python
 
-import os
 import sys
 
 
@@ -13,6 +12,12 @@ class Colors:
 
 
 def message_print(msg, key):
+    """
+    Print function with color by base on type message
+    :param msg: text of message
+    :param key: key of type message
+    :return: nothing, just print
+    """
     if key == 'INFO':
         print(Colors.INFO + ' ' + key + ': ' + msg + Colors.END)
     elif key == 'WARN':
@@ -24,8 +29,11 @@ def message_print(msg, key):
 
 
 def game(current_turn):
-    msg = ''
-
+    """
+    Shaping current game turn, turns history and gamepad grid
+    :param current_turn: current game turn coordinates of gamer (1 is Human, 2 is AI)
+    :return: if winner has been defined returns True, if not is False
+    """
     if current_turn % 2 != 0:
         value = list(map(int, input_value().split(',')))
         gamer = 1
@@ -61,6 +69,10 @@ def game(current_turn):
 
 
 def get_game_matrix():
+    """
+    Getting gamepad grid function in matrix data
+    :return: gamepad matrix data
+    """
     game_matrix['rows'] = game_field
 
     cols_list = []
@@ -98,6 +110,10 @@ def get_game_matrix():
 
 
 def input_value():
+    """
+    Function activated if Human's game turn now
+    :return: Human's game turn coordinates data
+    """
     value = str(input(' Your game turn# ')).replace('(', '').replace(')', '').replace(' ', '')
     while not check_value(value):
         value = str(input(' Your game turn# ')).replace('(', '').replace(')', '').replace(' ', '')
@@ -106,6 +122,11 @@ def input_value():
 
 
 def check_value(value):
+    """
+    Function checks inputted Human's game turn data
+    :param value: Human's game turn data
+    :return: True - if data correctly, False - if not
+    """
     if not value:
         msg = 'Inputted game data value is empty! Please, to try again...'
         message_print(msg, 'WARN')
@@ -143,6 +164,15 @@ def check_value(value):
 
 
 def search_turn(gamer, field_fullness):
+    """
+    Function searches game winner or if AI's game turn now then function searches optimater game turn.
+    If gamer is Human (1) function gets pre-winner Human's game row, column or diagonal.
+    If pre-winner Human's game turn does not exists function searches AI winner game turn.
+    :param gamer: gamer code (1 is Human, 2 is AI)
+    :param field_fullness: gamepad fullness (for 0 to 3, 0  - string of gamepad grid is empty, 1 - current gamer
+                           does only one game turn on that string, and etc)
+    :return: turn data or False if no any data has been defined
+    """
     turn = {}
 
     for matrix in game_matrix:
@@ -171,10 +201,18 @@ def search_turn(gamer, field_fullness):
 
 
 def ai():
+    """
+    AI's game turn function
+    :return: AI's game turn if exists or False
+    """
     return ai_winning_turn()
 
 
 def ai_winning_turn():
+    """
+    Function defined AI's winning game turn
+    :return: AI's winning game turn or Human's winning game turn
+    """
     turn = search_turn(2, 1)
 
     if not turn:
@@ -184,6 +222,12 @@ def ai_winning_turn():
 
 
 def gamer_winning_turn(gamer, recurse=1):
+    """
+    Function defined gamer's winning game turn
+    :param gamer: gamer code
+    :param recurse: search depth
+    :return: gamer's winning game turn or simple (no winning) turn
+    """
     if recurse == 0:
         return simple_turn()
 
@@ -196,6 +240,11 @@ def gamer_winning_turn(gamer, recurse=1):
 
 
 def simple_turn(field_fullness=2):
+    """
+    Simple AI game turn
+    :param field_fullness: search depth
+    :return: game turn
+    """
     if field_fullness > step:
         return False
 
