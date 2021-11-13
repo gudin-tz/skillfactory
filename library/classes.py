@@ -1,26 +1,45 @@
 import random
+import sys
 from tkinter import *
 
 
 class FleetCreating:
 
     def __init__(self, pad_side):
+        # Размер квадрата минимального игрового поля
         self.basic = 6
+        # Список видов кораблей на игровом поле: x - (одноклеточные), y - (двуклеточные), z - (трехклеточные)
         self.fleet = [4, 2, 1]
+        # Координаты каждой клетки игрового поля
         self.pad = []
+        # Координаты каждого корабля
         self.fleet_position = []
+        # Создаём счётчик для полчения общего количества кораблей на игровом поле
         self.ships_in_fleet = 0
 
+        """
+        Цикл, записывающий координаты каждой клетки в список
+        """
         for i in range(pad_side):
             for j in range(pad_side):
                 self.pad.append([i, j])
 
+        """
+        Цикл создания кораблей на игровом поле и запись их координат в список
+        """
+        # Запускаем цикл по кораблям из списка
         for i in range(len(self.fleet)):
+            # Высчитываем количество кораблей в зависимости от количества мачт и выставленного размера игрового поля
             ships_by_mast = self.fleet[i] + self.fleet[i] * (pad_side - self.basic)
+            # Увеличиваем счётчик количества кораблей на игровом поле
             self.ships_in_fleet += ships_by_mast
+            # Запускаем цикл, вычисляющий положение каждого корабля
             for ship in range(ships_by_mast):
+                # Задаём считчик попыток цикла ниже
                 attempt = 0
+                # Запускаем цикл, проверяющий клетки поля на предмет занятости, предел попыток - 10000
                 while not self.ship_placement(i + 1) and attempt < 10000:
+                    # Увеличиваем счётчик попыток
                     attempt += 1
 
     def ship_placement(self, nom):
