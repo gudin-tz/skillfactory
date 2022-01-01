@@ -190,7 +190,7 @@ class GamePad:
         # Создаём пустой список ячеек игрового поля
         self.pad.cells = []
         # Создаём пустой список кнопок игровокго поля
-        self.buttons = []
+        self.buttons_ai = []
         #
         self.active = None
         # Инициируем координаты флота в переменную
@@ -236,7 +236,7 @@ class GamePad:
             """
 
             # Разрушаем кнопку при нажатии
-            self.buttons[a * self.pad.side + b].destroy()
+            self.buttons_ai[a * self.pad.side + b].destroy()
 
         # Запускаем цикл по размеру стороны игрового поля
         for i in range(self.pad.side):
@@ -247,7 +247,7 @@ class GamePad:
                 # Устанавливаем ширину столбца игрового поля
                 self.pad.columnconfigure(j, minsize=30)
                 # Вписываем Label в ячейку
-                Label(width=2).grid(row=i, column=j)
+                Label(borderwidth="1", relief="sunken", width="4", height="2", bg="blue").grid(row=i, column=j)
 
         # Прописываем корабль на игровом поле
         set_ship()
@@ -255,14 +255,24 @@ class GamePad:
         # Запускаем цикл по размеру стороны игрового поля
         for i in range(self.pad.side):
             # Запускаем цикл по размеру стороны игрового поля
-            for j in range(self.pad.side):
+            for j in range(self.pad.side*2 + 1):
                 # Выполняем, если игровое поле строится для человека
                 if self.gamer == 'human':
+                    if j == self.pad.side:
+                        _relief = "flat"
+                    else:
+                        _relief = "groove"
                     # Создаём Button для части корпуса корабля
-                    button = Button(relief="groove", command=lambda a=i, b=j: cell_press(a, b))
-                    # Прописываем Button на игровом поле
-                    button.grid(row=i, column=j)
+                    button = Button(borderwidth="1", relief=_relief, command=lambda a=i, b=j: cell_press(a, b))
+                    # Прописываем Button на игровом поле и добавляеи оазделитель между игровыми полями
+                    if j != self.pad.side:
+                        button.grid(row=i, column=j, sticky='nwse')
+                    else:
+                        Label(relief="groove", width="2", height="2", bg="yellow").grid(row=i, column=j, sticky='nwse')
+
                     # Добавляем Button в список кнопок игрового поля
-                    self.buttons.append(button)
-                # Добавляем координату клетки игрового поля в саисок
-                self.pad.cells.append((str(i) + ',' + str(j)))
+                    if j < self.pad.side:
+                        self.buttons_ai.append(button)
+                # Добавляем координату клетки игрового поля в список
+                if j < self.pad.side:
+                    self.pad.cells.append((str(i) + ',' + str(j)))
