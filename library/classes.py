@@ -1,5 +1,7 @@
 import random
 from tkinter import *
+import os
+from PIL import ImageTk,Image
 
 
 class FleetCreating:
@@ -195,6 +197,12 @@ class GamePad:
         self.active = None
         # Инициируем координаты флота в переменную
         self.fleet_position = fleet_position
+        # Текущая директория
+        self.dir = os.getcwd()
+        # Задаём переменную для заднего фона игрового поля
+        self.pad_img = None
+        # Задаём картинку одномачтового корабля
+        self.ship_v_img = None
 
     def create_pad(self):
         """
@@ -213,19 +221,34 @@ class GamePad:
                 # Выполняем, если корабль размещается вертикально
                 if ship[0] == 0:
                     # Запускаем цикл по количеству мачт
+                    img_position = 'v'
+                    rc = ['2', str(2 * ship[1])]
                     for x in range(ship[1]):
                         # Создаём Label для части корпуса корабля
                         lbl = Label(text=ship[1], bg='red', relief="groove")
                         # Прописываем Label на игровом поле
-                        lbl.grid(row=ship[2][0], column=ship[2][1] + x, sticky='nwse')
+                        #lbl.grid(row=ship[2][0], column=ship[2][1] + x, sticky='nwse')
                 # Выполняем, если корабль размещается горизонтально
                 else:
                     # Запускаем цикл по количеству мачт
+                    img_position = 'r'
                     for x in range(ship[1]):
                         # Создаём Label для части корпуса корабля
                         lbl = Label(text=ship[1], bg='red', relief="groove")
                         # Прописываем Label на игровом поле
-                        lbl.grid(row=ship[2][0] + x, column=ship[2][1], sticky='nwse')
+                        #lbl.grid(row=ship[2][0] + x, column=ship[2][1], sticky='nwse')
+
+                for x in range(ship[1]):
+                    img = os.path.join(self.dir, 'pics/', str(ship[1]) + img_position + '_' + str(x + 1) + '.jpg')
+                    print(img)
+                    img = Image.open(img)
+                    img = img.resize((30, 30))
+                    self.ship_img = ImageTk.PhotoImage(img)
+                    ll_ship = Label(self.pad, width='2', height='2', image=self.ship_img)
+                    if img_position == 'v':
+                        ll_ship.grid(row=ship[2][0], column=ship[2][1] + x, sticky='nwse')
+                    else:
+                        ll_ship.grid(row=ship[2][0] + x, column=ship[2][1], sticky='nwse')
 
         def cell_press(a, b):
             """
@@ -238,6 +261,13 @@ class GamePad:
             # Разрушаем кнопку при нажатии
             self.buttons_ai[a * self.pad.side + b].destroy()
 
+        # Задаём задний фон окна в виде моря
+        img_path = os.path.join(self.dir, "pics/game_pad.jpg")
+        self.pad_img = ImageTk.PhotoImage(Image.open(img_path))
+        self.pad.config(bg='yellow')
+        ll = Label(self.pad, borderwidth="1", image=self.pad_img, anchor='nw')
+        ll.place(x=0, y=0)
+
         # Запускаем цикл по размеру стороны игрового поля
         for i in range(self.pad.side):
             # Запускаем цикл по размеру стороны игрового поля
@@ -246,8 +276,6 @@ class GamePad:
                 self.pad.rowconfigure(i, minsize=30)
                 # Устанавливаем ширину столбца игрового поля
                 self.pad.columnconfigure(j, minsize=30)
-                # Вписываем Label в ячейку
-                Label(borderwidth="1", relief="sunken", width="4", height="2", bg="blue").grid(row=i, column=j)
 
         # Прописываем корабль на игровом поле
         set_ship()
@@ -266,9 +294,11 @@ class GamePad:
                     button = Button(borderwidth="1", relief=_relief, command=lambda a=i, b=j: cell_press(a, b))
                     # Прописываем Button на игровом поле и добавляеи оазделитель между игровыми полями
                     if j != self.pad.side:
-                        button.grid(row=i, column=j, sticky='nwse')
+                        #button.grid(row=i, column=j, sticky='nwse')
+                        pass
                     else:
-                        Label(relief="groove", width="2", height="2", bg="yellow").grid(row=i, column=j, sticky='nwse')
+                        #Label(relief="groove", width="2", height="2", bg="yellow").grid(row=i, column=j, sticky='nwse')
+                        pass
 
                     # Добавляем Button в список кнопок игрового поля
                     if j < self.pad.side:
