@@ -61,8 +61,11 @@ class FleetCreating:
             :return: True - корабль помещается на игровом поле, False - корабль выходит за пределы игрового поля
             """
 
-            if position[1] + nom > self.basic:
-                return False
+            for i in range(1000):
+                if position[0] + nom + 1 > self.basic or position[1] + nom + 1 > self.basic:
+                    return False
+                else:
+                    i = 1001
             return True
 
         def space_pad_check():
@@ -218,37 +221,20 @@ class GamePad:
 
             # Запускаем цикл по каждому кораблю во флоте
             for ship in self.fleet_position:
-                # Выполняем, если корабль размещается вертикально
-                if ship[0] == 0:
-                    # Запускаем цикл по количеству мачт
-                    img_position = 'v'
-                    rc = ['2', str(2 * ship[1])]
-                    for x in range(ship[1]):
-                        # Создаём Label для части корпуса корабля
-                        lbl = Label(text=ship[1], bg='red', relief="groove")
-                        # Прописываем Label на игровом поле
-                        #lbl.grid(row=ship[2][0], column=ship[2][1] + x, sticky='nwse')
-                # Выполняем, если корабль размещается горизонтально
-                else:
-                    # Запускаем цикл по количеству мачт
-                    img_position = 'r'
-                    for x in range(ship[1]):
-                        # Создаём Label для части корпуса корабля
-                        lbl = Label(text=ship[1], bg='red', relief="groove")
-                        # Прописываем Label на игровом поле
-                        #lbl.grid(row=ship[2][0] + x, column=ship[2][1], sticky='nwse')
-
+                # Добаляем label с картинкой на игровое поле
                 for x in range(ship[1]):
-                    img = os.path.join(self.dir, 'pics/', str(ship[1]) + img_position + '_' + str(x + 1) + '.jpg')
-                    print(img)
+                    img_ship = str(ship[0]) + '.' + str(ship[1]) + '.' + str(x) + '.jpg'
+                    img = os.path.join(self.dir, 'pics/', img_ship)
                     img = Image.open(img)
                     img = img.resize((30, 30))
                     self.ship_img = ImageTk.PhotoImage(img)
                     ll_ship = Label(self.pad, width='2', height='2', image=self.ship_img)
-                    if img_position == 'v':
-                        ll_ship.grid(row=ship[2][0], column=ship[2][1] + x, sticky='nwse')
-                    else:
+                    ll_ship.image = self.ship_img
+                    # Если корабль вертикальный, или горизонтальный
+                    if ship[0] == 0:
                         ll_ship.grid(row=ship[2][0] + x, column=ship[2][1], sticky='nwse')
+                    else:
+                        ll_ship.grid(row=ship[2][0], column=ship[2][1] + x, sticky='nwse')
 
         def cell_press(a, b):
             """

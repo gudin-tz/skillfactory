@@ -1,11 +1,12 @@
 #!/usr/bin/python3
+import sys
 
 from library import classes
 
 if __name__ == '__main__':
 
     # Задаём размер игрового поля
-    side = 6
+    side = 10
     # Создаём словарь флотов игроков
     fleets = {}
 
@@ -24,3 +25,6 @@ if __name__ == '__main__':
             gamer_choice = game_pad.create_pad()
             # Инициируем сделанные настройки для Tkinter
             game_pad.pad.mainloop()
+        else:
+            print(gamer + ': Корабли не помещаются на игровом поле. Перезапустите игру.')
+            sys.exit()
