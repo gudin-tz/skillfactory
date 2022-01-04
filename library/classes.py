@@ -1,7 +1,7 @@
 import random
 from tkinter import *
 import os
-from PIL import ImageTk,Image
+from PIL import ImageTk, Image
 
 
 class FleetCreating:
@@ -34,13 +34,13 @@ class FleetCreating:
                 self.pad.append([i, j])
 
         # Запускаем цикл создания кораблей на игровом поле и запись их координат в список
-        for i in range(len(self.fleet)):
+        for i in range(len(self.fleet) - 1, -1, -1):
             # Высчитываем количество кораблей в зависимости от количества мачт и выставленного размера игрового поля
             ships_by_mast = self.fleet[i] + self.fleet[i] * (pad_side - self.basic)
             # Увеличиваем счётчик количества кораблей на игровом поле
             self.ships_in_fleet += ships_by_mast
             # Запускаем цикл, вычисляющий положение каждого корабля
-            for ship in range(ships_by_mast):
+            for ship in range(self.fleet[i]):
                 # Задаём считчик попыток цикла ниже
                 attempt = 0
                 # Запускаем цикл, проверяющий клетки поля на предмет занятости, предел попыток - 10000
@@ -61,11 +61,8 @@ class FleetCreating:
             :return: True - корабль помещается на игровом поле, False - корабль выходит за пределы игрового поля
             """
 
-            for i in range(1000):
-                if position[0] + nom + 1 > self.basic or position[1] + nom + 1 > self.basic:
-                    return False
-                else:
-                    i = 1001
+            if position[0] + nom + 1 > self.basic or position[1] + nom + 1 > self.basic:
+                return False
             return True
 
         def space_pad_check():
@@ -77,63 +74,72 @@ class FleetCreating:
             # Результат проверки координаты игрового поля на занятость
             result = True
             # Временный список для записи вычисляемых координат создаваемого корабля
-            delta = []
+            #delta = []
 
             # Выполняем, если количество мачт больше 1
             if nom > 0:
                 # Выполняем, если корабль требуется создать вертикально
                 if direction == 0:
+                    delta = []
                     # Запускаем цикл по количеству мачт
-                    for i in range(nom):
+                    for i in range(1, nom):
+                        # Вычисляем координату клетки, в которую предполается расширить корпус корабля
+                        position_check = [position[0], position[1] + i]
+                        # Проверяем, что текущая координата не занята
+                        result = position_check in self.pad
+                        if result:
+                            # Записываем координаты текущей клетки в список
+                            delta.append(position_check)
+                            # Чтобы корабли не липли друг к другу, пишем координаты клеток справа и слева от корабля
+                            delta.append([position[0] + 1, position[1]])
+                            delta.append([position[0] - 1, position[1]])
+                            # Чтобы корабли не липли друг к другу пишем координаты клеток снизу и сверху от корабля
+                            # Выполняем, если клетка первая из проверяемых
+                            if i == 0:
+                                delta.append([position[0], position[1] - 1])
+                            # Выполняем, если клетка последняя из проверяемых
+                            elif i == nom:
+                                delta.append([position[0] + 1, position[1]])
+                        else:
+                            return False
+
+                    # Добавляем проверенный корабль в список флота: направление, количество мачт, координаты
+                    self.fleet_position.append([direction, nom, position])
+                    # Запускаем цикл по временному списку координат
+                    for el in delta:
+                        # Выполняем, если клетка не выходит за пределы игрового поля
+                        if el in self.pad:
+                            # Удаляем координату из списка игрового поля, помечая её как занятую
+                            self.pad.remove(el)
+                    # Возвращаем, что создать корабль можно
+                    return True
+
+                # Выполняем, если корабль требуется создать горизонтально
+                if direction == 11:
+                    delta = []
+                    # Запускаем цикл по количеству мачт
+                    for i in range(1, nom):
                         # Вычисляем текущую координату клетки, в которой предполается создать корабль
                         position_check = [position[0], position[1] + i]
                         # Проверяем, что текущая координата не занята
-                        result = result * (position_check in self.pad)
-                        # Записываем координаты текущей клетки в список
-                        delta.append(position_check)
-                        # Чтобы корабли не липли друг к другу, пишем координаты клеток справа и слева от корабля
-                        delta.append([position[0] + 1, position[1]])
-                        delta.append([position[0] - 1, position[1]])
-                        # Чтобы корабли не липли друг к другу пишем координаты клеток снизу и сверху от корабля
-                        # Выполняем, если клетка первая из проверяемых
-                        if i == 0:
-                            delta.append([position[0], position[1] - 1])
-                        # Выполняем, если клетка последняя из проверяемых
-                        elif i == nom:
+                        result = position_check in self.pad
+                        if result:
+                            # Записываем координаты текущей клетки в список
+                            delta.append(position_check)
+                            # Чтобы корабли не липли друг к другу, пишем координаты клеток справа и слева от корабля
                             delta.append([position[0], position[1] + 1])
+                            delta.append([position[0], position[1] - 1])
+                            # Чтобы корабли не липли друг к другу пишем координаты клеток снизу и сверху от корабля
+                            # Выполняем, если клетка первая из проверяемых
+                            if i == 0:
+                                delta.append([position[0] - 1, position[1]])
+                            # Выполняем, если клетка последняя из проверяемых
+                            elif i == nom:
+                                delta.append([position[0] + 1, position[1]])
+                        else:
+                            return False
                     # Выполняем, если результат от проверки незанятости клетки положительный
-                    if result:
-                        # Добавляем проверенный корабль в список флота: направление, количество мачт, координаты
-                        self.fleet_position.append([direction, nom, position])
-                        # Запускаем цикл по временному списку координат
-                        for el in delta:
-                            # Выполняем, если клетка не выходит за пределы игрового поля
-                            if el in self.pad:
-                                # Удаляем координату из списка игрового поля, помечая её как занятую
-                                self.pad.remove(el)
-                        # Возвращаем, что создать корабль можно
-                        return True
-                # Выполняем, если корабль требуется создать горизонтально
-                if direction == 1:
-                    # Запускаем цикл по количеству мачт
-                    for i in range(nom):
-                        # Вычисляем текущую координату клетки, в которой предполается создать корабль
-                        position_check = [position[0] + i, position[1]]
-                        # Проверяем, что текущая координата не занята
-                        result = result * (position_check in self.pad)
-                        # Записываем координаты текущей клетки в список
-                        delta.append(position_check)
-                        # Чтобы корабли не липли друг к другу, пишем координаты клеток справа и слева от корабля
-                        delta.append([position[0], position[1] + 1])
-                        delta.append([position[0], position[1] - 1])
-                        # Чтобы корабли не липли друг к другу пишем координаты клеток снизу и сверху от корабля
-                        # Выполняем, если клетка первая из проверяемых
-                        if i == 0:
-                            delta.append([position[0] - 1, position[1]])
-                        # Выполняем, если клетка последняя из проверяемых
-                        elif i == nom:
-                            delta.append([position[0] + 1, position[1]])
-                    # Выполняем, если результат от проверки незанятости клетки положительный
+                    print(nom, result)
                     if result:
                         # Добавляем проверенный корабль в список флота: направление, количество мачт, координаты
                         self.fleet_position.append([direction, nom, position])

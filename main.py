@@ -6,7 +6,7 @@ from library import classes
 if __name__ == '__main__':
 
     # Задаём размер игрового поля
-    side = 10
+    side = 6
     # Создаём словарь флотов игроков
     fleets = {}
 
